@@ -8,13 +8,13 @@
 
 An object's **6-dof pose** is its position (x, y, z) and orientation (roll, pitch, yaw) relative to the camera. A robot picking up a mug, for example, needs to know where the mug is and which way its handle points.
 
-![A toy duck in a cluttered scene, highlighted in green, with three arrows showing its estimated position and orientation.](bop-pose-example.png)
+![A toy duck in a cluttered scene, highlighted in green, with three arrows showing its estimated position and orientation.](assets/bop-pose-example.png)
 
 *Figure 1. 6-DoF pose estimation: the three arrows mark the duck's estimated position and orientation in the scene. Image: [BOP benchmark](https://bop.felk.cvut.cz/home/), Linemod (LM) dataset (Hinterstoisser et al., 2012).*
 
 Our team's estimator is **model-free**: it needs no CAD model (digital 3D design) of the object. Instead, we **onboard** a new object from **reference images**, photos of it taken from different viewpoints, for example frames of a short video around it. The pipeline's **3D reconstructor** combines the references into a **point cloud**, a set of 3D points on the object's surface, which the estimator then uses to find the object's pose in new images. Onboarding usually yields far more references than needed: neighbouring frames are nearly identical, and some are blurry or repeat directions already covered. Every extra reference makes onboarding and pose estimation slower, but dropping the wrong ones leaves holes in the point cloud and costs accuracy. Choosing a minimal set by hand is slow and needs expertise.
 
-![Five photos of the same toy duck on a cluttered table, taken from slightly different directions.](bop-duck-references.png)
+![Five photos of the same toy duck on a cluttered table, taken from slightly different directions.](assets/bop-duck-references.png)
 
 *Figure 2. Five reference photos of the duck from different viewpoints. Several are nearly identical; from a pool of many such photos, the agent will keep only the ones it needs. Images: [BOP benchmark](https://bop.felk.cvut.cz/home/), Linemod (LM) dataset (Hinterstoisser et al., 2012).*
 
@@ -41,7 +41,7 @@ The agent runs a select, run, read, adjust loop:
 4. Decide whether the point cloud makes sense and, if not, change the subset. The agent checks that the shape matches the object, the colours match the photos, there is no background mixed in, no part appears twice, and nothing the application needs is missing. It then uses the connectivity to find which references cause each problem: drop a reference that adds only repeated points or causes a doubled or misplaced part, and add references where the point cloud is thin or has gaps. If it is unsure, it shows the user the images and asks.
 5. Stop when the point cloud is judged good enough and no reference can be dropped without harming it, or when the budget runs out. Export the selected references and the point cloud, or report what is still missing.
 
-![The agent's loop: the user sets goals and provides the reference pool; the language model selects a subset; the ground reconstructs a point cloud and its connectivity; the model reads them, then adds or drops references, asking the user to judge the cloud when unsure; the user accepts the final point cloud, then the fixed estimator is evaluated on held-out images.](approach-c-loop.svg)
+![The agent's loop: the user sets goals and provides the reference pool; the language model selects a subset; the ground reconstructs a point cloud and its connectivity; the model reads them, then adds or drops references, asking the user to judge the cloud when unsure; the user accepts the final point cloud, then the fixed estimator is evaluated on held-out images.](assets/approach-c-loop.svg)
 
 *Figure 3. The agent's select, run, read, reason-and-adjust loop. Step 02 uses the fixed reconstructor and returns point-cloud outputs, not pose-estimation scores. After the user approves the final cloud, the fixed estimator measures accuracy on held-out images; these scores do not feed back into the agent. The point cloud and the links between references under step 03 are illustrative. Duck images: BOP benchmark, Linemod (LM) dataset.*
 
