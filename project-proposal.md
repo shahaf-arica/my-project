@@ -1,3 +1,5 @@
+Degree level: PhD
+
 # Project proposal
 
 **Project title: An AI Agent for Efficient Object Onboarding in Model-Free 6-DoF Pose Estimation**
